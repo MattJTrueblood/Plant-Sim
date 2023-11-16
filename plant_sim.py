@@ -19,18 +19,21 @@ def create_world(width, height):
     """
     world = np.zeros(shape=(width, height)) # all tiles are by default empty
     
-    create_soil_random_walk(world)
+    add_soil_random_walk(world)
+    add_seeds(world, 3)
     
     return world
 
 
-def create_soil_random_walk(world):
+def add_soil_random_walk(world):
     """
     Populates the world with a random terrain of soil tiles generated using a random walk method.
     The random walk is controlled by a min and max elevation, as well as a flatness parameter which weights the random walk.
+    
+    :param world: the world to add the soil to
     """
     soil_depth = random.randint(MIN_SOIL_DEPTH, MAX_SOIL_DEPTH)
-    width, height = world.shape[0], world.shape[1]
+    width, height = world.shape
 
     for i in range(width):
         # Calculate the top boundary of the soil based on the soil depth and fill in all tiles below it.
@@ -47,6 +50,22 @@ def create_soil_random_walk(world):
             
         soil_depth += change
         
+def add_seeds(world, num_seeds):
+    """
+    Places a given quantity of plant seeds in the soil.
+    
+    :param world: the world to add the seeds to
+    :param num_seeds: the number of seeds to add to the world
+    """
+    width, height = world.shape
+    for _ in range(num_seeds):
+        seed_x = random.randint(0, width)
+        # Find the y value of the topmost soil tile in this column and place the seed there
+        for seed_y in range(height):
+            if world[seed_x, seed_y] == TileType.SOIL.value:
+                world[seed_x, seed_y] = TileType.SEED.value
+                break;
+    
 
 def run_sim(world, num_steps):
     """
